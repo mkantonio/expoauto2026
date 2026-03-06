@@ -67,7 +67,7 @@
     }
 
     .control label {
-      display: none; /* visual minimalista, como en el screenshot */
+      display: none;
     }
 
     .input,
@@ -123,6 +123,7 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 0.8rem;
+      table-layout: fixed;
     }
 
     thead {
@@ -134,25 +135,31 @@
     td {
       padding: 0.4rem 0.45rem;
       text-align: left;
+      vertical-align: middle;
+    }
+
+    th:nth-child(1),
+    td:nth-child(1),
+    th:nth-child(3),
+    td:nth-child(3) {
       white-space: nowrap;
+    }
+
+    td:nth-child(2) {
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
 
     th:nth-child(1),
     td:nth-child(1) {
-      width: 1%;
+      width: 10%;
       text-align: center;
     }
 
     th:nth-child(3),
     td:nth-child(3) {
+      width: 30%;
       text-align: center;
-    }
-
-    th {
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      font-size: 0.7rem;
     }
 
     tbody tr:nth-child(odd) {
@@ -175,6 +182,7 @@
       color: var(--primary-dark);
       font-size: 0.7rem;
       font-weight: 600;
+      white-space: nowrap;
     }
 
     .no-results {
@@ -192,6 +200,26 @@
       color: #b91c1c;
       font-size: 0.78rem;
       border: 1px solid #fecaca;
+    }
+
+    /* Bloque del mapa */
+    .map-section {
+      margin-top: 0.9rem;
+      text-align: center;
+    }
+
+    .map-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      color: var(--text-main);
+    }
+
+    .map-image {
+      max-width: 100%;
+      height: auto;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border);
     }
 
     @media (min-width: 600px) {
@@ -252,10 +280,22 @@
     </div>
 
     <div id="errorBox" class="error" style="display:none;"></div>
+
+    <!-- Sección del mapa -->
+    <section class="map-section">
+      <div class="map-title">Mapa de ExpoAuto</div>
+      <img
+        src="mapa.jpg"
+        alt="Mapa de ExpoAuto"
+        title="mapa de ExpoAuto"
+        class="map-image"
+        loading="lazy"
+      />
+    </section>
   </div>
 
   <script>
-    const DATA_URL = "Empresas.json"; // mismo directorio que este HTML
+    const DATA_URL = "Empresas.json";
 
     const searchInput = document.getElementById("searchInput");
     const zonaSelect = document.getElementById("zonaSelect");
@@ -278,7 +318,6 @@
         }
         empresas = data;
 
-        // zonas únicas ordenadas
         const setZonas = new Set();
         empresas.forEach(e => {
           if (e.zona) setZonas.add(e.zona);
