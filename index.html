@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>ExpoAuto Buscador</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --primary: #0d6efd;
+      --primary-dark: #0b5ed7;
+      --primary-light: #e7f1ff;
+      --bg: #f1f3f5;
+      --border: #d0d7de;
+      --text-main: #212529;
+      --text-muted: #6c757d;
+      --table-header: #0b5ed7;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0.75rem;
+      background: var(--bg);
+      color: var(--text-main);
+    }
+
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+      padding: 0.9rem 0.9rem 1.1rem;
+    }
+
+    .app-header {
+      text-align: left;
+      margin-bottom: 0.75rem;
+    }
+
+    .app-title {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+    }
+
+    .app-subtitle {
+      margin: 0.15rem 0 0;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .controls {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .control {
+      flex: 1 1 0;
+      position: relative;
+    }
+
+    .control label {
+      display: none; /* visual minimalista, como en el screenshot */
+    }
+
+    .input,
+    .select {
+      width: 100%;
+      padding: 0.45rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-size: 0.85rem;
+      outline: none;
+      background: #fff;
+      box-shadow: 0 1px 1px rgba(15, 23, 42, 0.04);
+      appearance: none;
+    }
+
+    .input::placeholder {
+      color: #9ca3af;
+    }
+
+    .input:focus,
+    .select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.2);
+    }
+
+    .select {
+      padding-right: 1.8rem;
+    }
+
+    .select-arrow {
+      position: absolute;
+      right: 0.7rem;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      font-size: 0.65rem;
+      color: #6b7280;
+    }
+
+    .stats {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .table-wrapper {
+      border-radius: 0.6rem;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+
+    thead {
+      background: var(--table-header);
+      color: #fff;
+    }
+
+    th,
+    td {
+      padding: 0.4rem 0.45rem;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th:nth-child(1),
+    td:nth-child(1) {
+      width: 1%;
+      text-align: center;
+    }
+
+    th:nth-child(3),
+    td:nth-child(3) {
+      text-align: center;
+    }
+
+    th {
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-size: 0.7rem;
+    }
+
+    tbody tr:nth-child(odd) {
+      background: #f8fafc;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #ffffff;
+    }
+
+    tbody tr:hover {
+      background: #e7f1ff;
+    }
+
+    .badge-zone {
+      display: inline-block;
+      padding: 0.10rem 0.4rem;
+      border-radius: 999px;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 0.6rem 0.45rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .error {
+      margin-top: 0.5rem;
+      padding: 0.45rem 0.6rem;
+      border-radius: 0.5rem;
+      background: #fee2e2;
+      color: #b91c1c;
+      font-size: 0.78rem;
+      border: 1px solid #fecaca;
+    }
+
+    @media (min-width: 600px) {
+      body {
+        padding-top: 1.5rem;
+      }
+
+      .app {
+        max-width: 640px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <h1 class="app-title">ExpoAuto Buscador</h1>
+      <p class="app-subtitle">
+        ExpoAuto — Busque empresas por nombre o filtre por zona
+      </p>
+    </header>
+
+    <section class="controls">
+      <div class="control">
+        <label for="searchInput">Buscar empresa</label>
+        <input
+          id="searchInput"
+          type="text"
+          class="input"
+          placeholder="Buscar empresa..."
+          autocomplete="off"
+        />
+      </div>
+      <div class="control">
+        <label for="zonaSelect">Zona</label>
+        <select id="zonaSelect" class="select">
+          <option value="">Todas las zonas</option>
+        </select>
+        <span class="select-arrow">▼</span>
+      </div>
+    </section>
+
+    <div id="stats" class="stats">Cargando empresas...</div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>EMPRESA</th>
+            <th>ZONA</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody">
+          <!-- filas dinámicas -->
+        </tbody>
+      </table>
+    </div>
+
+    <div id="errorBox" class="error" style="display:none;"></div>
+  </div>
+
+  <script>
+    const DATA_URL = "Empresas.json"; // mismo directorio que este HTML
+
+    const searchInput = document.getElementById("searchInput");
+    const zonaSelect = document.getElementById("zonaSelect");
+    const stats = document.getElementById("stats");
+    const tbody = document.getElementById("resultsBody");
+    const errorBox = document.getElementById("errorBox");
+
+    let empresas = [];
+    let zonasUnicas = [];
+
+    async function cargarDatos() {
+      try {
+        const resp = await fetch(DATA_URL);
+        if (!resp.ok) {
+          throw new Error("No se pudo cargar " + DATA_URL + " (status " + resp.status + ")");
+        }
+        const data = await resp.json();
+        if (!Array.isArray(data)) {
+          throw new Error("El contenido de Empresas.json debe ser un array.");
+        }
+        empresas = data;
+
+        // zonas únicas ordenadas
+        const setZonas = new Set();
+        empresas.forEach(e => {
+          if (e.zona) setZonas.add(e.zona);
+        });
+        zonasUnicas = Array.from(setZonas).sort((a, b) =>
+          a.localeCompare(b, "es")
+        );
+
+        zonasUnicas.forEach(z => {
+          const opt = document.createElement("option");
+          opt.value = z;
+          opt.textContent = z;
+          zonaSelect.appendChild(opt);
+        });
+
+        aplicarFiltros();
+      } catch (err) {
+        mostrarError(err.message || "Error al cargar los datos.");
+      }
+    }
+
+    function mostrarError(msg) {
+      errorBox.textContent = msg;
+      errorBox.style.display = "block";
+      stats.textContent = "Ocurrió un error al cargar las empresas.";
+      tbody.innerHTML = "";
+    }
+
+    function aplicarFiltros() {
+      const texto = searchInput.value.trim().toLowerCase();
+      const zonaSeleccionada = zonaSelect.value;
+
+      let lista = empresas.slice();
+
+      if (zonaSeleccionada) {
+        lista = lista.filter(e => e.zona === zonaSeleccionada);
+      }
+
+      if (texto) {
+        lista = lista.filter(e => {
+          const empresa = (e.empresa || "").toLowerCase();
+          return empresa.includes(texto);
+        });
+      }
+
+      renderTabla(lista);
+      actualizarStats(lista.length, empresas.length);
+    }
+
+    function renderTabla(lista) {
+      tbody.innerHTML = "";
+
+      if (!lista.length) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 3;
+        td.className = "no-results";
+        td.textContent = "No se encontraron empresas para los filtros actuales.";
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        return;
+      }
+
+      const frag = document.createDocumentFragment();
+
+      lista.forEach((e, idx) => {
+        const tr = document.createElement("tr");
+
+        const tdNum = document.createElement("td");
+        tdNum.textContent = idx + 1;
+        tr.appendChild(tdNum);
+
+        const tdEmpresa = document.createElement("td");
+        tdEmpresa.textContent = e.empresa || "";
+        tr.appendChild(tdEmpresa);
+
+        const tdZona = document.createElement("td");
+        const badge = document.createElement("span");
+        badge.className = "badge-zone";
+        badge.textContent = e.zona || "";
+        tdZona.appendChild(badge);
+        tr.appendChild(tdZona);
+
+        frag.appendChild(tr);
+      });
+
+      tbody.appendChild(frag);
+    }
+
+    function actualizarStats(mostradas, total) {
+      if (!total) {
+        stats.textContent = "Sin datos cargados.";
+        return;
+      }
+      if (mostradas === total) {
+        stats.textContent = `Mostrando todas las ${total} empresas.`;
+      } else {
+        stats.textContent = `Mostrando ${mostradas} de ${total} empresas.`;
+      }
+    }
+
+    searchInput.addEventListener("input", aplicarFiltros);
+    zonaSelect.addEventListener("change", aplicarFiltros);
+
+    cargarDatos();
+  </script>
+</body>
+</html>
