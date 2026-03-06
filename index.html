@@ -38,7 +38,7 @@
     }
 
     .app-header {
-      text-align: left;
+      text-align: center; /* centrado */
       margin-bottom: 0.75rem;
     }
 
@@ -111,6 +111,7 @@
       font-size: 0.8rem;
       color: var(--text-muted);
       margin-bottom: 0.4rem;
+      text-align: left;
     }
 
     .table-wrapper {
@@ -138,28 +139,23 @@
       vertical-align: middle;
     }
 
+    /* Solo hay dos columnas: EMPRESA y ZONA */
     th:nth-child(1),
-    td:nth-child(1),
-    th:nth-child(3),
-    td:nth-child(3) {
+    td:nth-child(1) {
+      width: 65%;
+    }
+
+    th:nth-child(2),
+    td:nth-child(2) {
+      width: 35%;
+      text-align: center;
       white-space: nowrap;
     }
 
-    td:nth-child(2) {
+    /* EMPRESA: permitir varias líneas */
+    td:nth-child(1) {
       white-space: normal;
       overflow-wrap: anywhere;
-    }
-
-    th:nth-child(1),
-    td:nth-child(1) {
-      width: 10%;
-      text-align: center;
-    }
-
-    th:nth-child(3),
-    td:nth-child(3) {
-      width: 30%;
-      text-align: center;
     }
 
     tbody tr:nth-child(odd) {
@@ -176,13 +172,14 @@
 
     .badge-zone {
       display: inline-block;
-      padding: 0.10rem 0.4rem;
+      padding: 0.12rem 0.55rem;
       border-radius: 999px;
-      background: var(--primary-light);
-      color: var(--primary-dark);
-      font-size: 0.7rem;
-      font-weight: 600;
-      white-space: nowrap;
+      background: #e0ecff;          /* más contraste */
+      color: #0b5ed7;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      border: 1px solid #0b5ed7;
     }
 
     .no-results {
@@ -202,7 +199,12 @@
       border: 1px solid #fecaca;
     }
 
-    /* Bloque del mapa */
+    /* Resaltado tipo marcador amarillo */
+    .highlight {
+      background: #fff59d;
+      padding: 0 1px;
+    }
+
     .map-section {
       margin-top: 0.9rem;
       text-align: center;
@@ -268,7 +270,6 @@
       <table>
         <thead>
           <tr>
-            <th>#</th>
             <th>EMPRESA</th>
             <th>ZONA</th>
           </tr>
@@ -281,7 +282,6 @@
 
     <div id="errorBox" class="error" style="display:none;"></div>
 
-    <!-- Sección del mapa -->
     <section class="map-section">
       <div class="map-title">Mapa de ExpoAuto</div>
       <img
@@ -346,8 +346,20 @@
       tbody.innerHTML = "";
     }
 
+    function escaparRegex(text) {
+      return text.replace(/[.*+?^${}()|[]\\]/g, "\\$&");
+    }
+
+    function resaltar(texto, termino) {
+      if (!termino) return texto || "";
+      const safeTerm = escaparRegex(termino);
+      const regex = new RegExp("(" + safeTerm + ")", "gi");
+      return (texto || "").replace(regex, '<span class="highlight">$1</span>');
+    }
+
     function aplicarFiltros() {
-      const texto = searchInput.value.trim().toLowerCase();
+      const termino = searchInput.value.trim();
+      const terminoLower = termino.toLowerCase();
       const zonaSeleccionada = zonaSelect.value;
 
       let lista = empresas.slice();
@@ -356,24 +368,25 @@
         lista = lista.filter(e => e.zona === zonaSeleccionada);
       }
 
-      if (texto) {
+      if (terminoLower) {
         lista = lista.filter(e => {
           const empresa = (e.empresa || "").toLowerCase();
-          return empresa.includes(texto);
+          const zona = (e.zona || "").toLowerCase();
+          return empresa.includes(terminoLower) || zona.includes(terminoLower);
         });
       }
 
-      renderTabla(lista);
+      renderTabla(lista, termino);
       actualizarStats(lista.length, empresas.length);
     }
 
-    function renderTabla(lista) {
+    function renderTabla(lista, termino) {
       tbody.innerHTML = "";
 
       if (!lista.length) {
         const tr = document.createElement("tr");
         const td = document.createElement("td");
-        td.colSpan = 3;
+        td.colSpan = 2;
         td.className = "no-results";
         td.textContent = "No se encontraron empresas para los filtros actuales.";
         tr.appendChild(td);
@@ -383,21 +396,17 @@
 
       const frag = document.createDocumentFragment();
 
-      lista.forEach((e, idx) => {
+      lista.forEach(e => {
         const tr = document.createElement("tr");
 
-        const tdNum = document.createElement("td");
-        tdNum.textContent = idx + 1;
-        tr.appendChild(tdNum);
-
         const tdEmpresa = document.createElement("td");
-        tdEmpresa.textContent = e.empresa || "";
+        tdEmpresa.innerHTML = resaltar(e.empresa || "", termino);
         tr.appendChild(tdEmpresa);
 
         const tdZona = document.createElement("td");
         const badge = document.createElement("span");
         badge.className = "badge-zone";
-        badge.textContent = e.zona || "";
+        badge.innerHTML = resaltar(e.zona || "", termino);
         tdZona.appendChild(badge);
         tr.appendChild(tdZona);
 
