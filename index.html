@@ -124,7 +124,7 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 0.8rem;
-      table-layout: fixed; /* columnas con ancho fijo, no se desborda la tabla */
+      table-layout: fixed;          /* ancho fijo → sin scroll horizontal */
     }
 
     thead {
@@ -137,28 +137,25 @@
       padding: 0.35rem 0.40rem;
       text-align: left;
       vertical-align: middle;
+      white-space: normal;          /* permitir múltiples líneas */
+      overflow-wrap: anywhere;      /* puede cortar palabras largas dentro de la celda */
+      word-wrap: break-word;        /* fallback compatible para wrap en tablas */
     }
 
-    /* Dos columnas: EMPRESA (más corta) y ZONA (más ancha) */
+    /* Dos columnas: EMPRESA y ZONA */
     th:nth-child(1),
     td:nth-child(1) {
-      width: 55%; /* antes 65, ahora más corta */
+      width: 55%;
     }
 
     th:nth-child(2),
     td:nth-child(2) {
       width: 45%;
       text-align: center;
-      white-space: nowrap;
     }
 
-    /* EMPRESA: máximo 2 líneas con puntos suspensivos */
     .empresa-cell {
-      white-space: normal;
-      overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;      /* máximo 2 líneas */
-      -webkit-box-orient: vertical;
+      /* solo usamos wrap normal, sin recortes ni ellipsis */
     }
 
     tbody tr:nth-child(odd) {
@@ -184,9 +181,9 @@
       font-weight: 700;
       text-transform: uppercase;
       border: 1px solid #0b5ed7;
-      overflow: hidden;
-      text-overflow: ellipsis; /* si la zona es muy larga, se corta con ... */
-      white-space: nowrap;
+      white-space: normal;          /* puede ocupar varias líneas */
+      overflow-wrap: anywhere;
+      word-wrap: break-word;
     }
 
     .no-results {
@@ -206,7 +203,6 @@
       border: 1px solid #fecaca;
     }
 
-    /* Resaltado tipo marcador amarillo */
     .highlight {
       background: #fff59d;
       padding: 0 1px;
