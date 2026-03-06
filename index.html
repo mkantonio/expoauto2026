@@ -38,7 +38,7 @@
     }
 
     .app-header {
-      text-align: center; /* centrado */
+      text-align: center;
       margin-bottom: 0.75rem;
     }
 
@@ -124,7 +124,7 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 0.8rem;
-      table-layout: fixed;
+      table-layout: fixed; /* columnas con ancho fijo, no se desborda la tabla */
     }
 
     thead {
@@ -134,28 +134,31 @@
 
     th,
     td {
-      padding: 0.4rem 0.45rem;
+      padding: 0.35rem 0.40rem;
       text-align: left;
       vertical-align: middle;
     }
 
-    /* Solo hay dos columnas: EMPRESA y ZONA */
+    /* Dos columnas: EMPRESA (más corta) y ZONA (más ancha) */
     th:nth-child(1),
     td:nth-child(1) {
-      width: 65%;
+      width: 55%; /* antes 65, ahora más corta */
     }
 
     th:nth-child(2),
     td:nth-child(2) {
-      width: 35%;
+      width: 45%;
       text-align: center;
       white-space: nowrap;
     }
 
-    /* EMPRESA: permitir varias líneas */
-    td:nth-child(1) {
+    /* EMPRESA: máximo 2 líneas con puntos suspensivos */
+    .empresa-cell {
       white-space: normal;
-      overflow-wrap: anywhere;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;      /* máximo 2 líneas */
+      -webkit-box-orient: vertical;
     }
 
     tbody tr:nth-child(odd) {
@@ -172,14 +175,18 @@
 
     .badge-zone {
       display: inline-block;
+      max-width: 100%;
       padding: 0.12rem 0.55rem;
       border-radius: 999px;
-      background: #e0ecff;          /* más contraste */
+      background: #e0ecff;
       color: #0b5ed7;
       font-size: 0.72rem;
       font-weight: 700;
       text-transform: uppercase;
       border: 1px solid #0b5ed7;
+      overflow: hidden;
+      text-overflow: ellipsis; /* si la zona es muy larga, se corta con ... */
+      white-space: nowrap;
     }
 
     .no-results {
@@ -400,6 +407,7 @@
         const tr = document.createElement("tr");
 
         const tdEmpresa = document.createElement("td");
+        tdEmpresa.className = "empresa-cell";
         tdEmpresa.innerHTML = resaltar(e.empresa || "", termino);
         tr.appendChild(tdEmpresa);
 
